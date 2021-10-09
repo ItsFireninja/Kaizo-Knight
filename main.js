@@ -1,6 +1,6 @@
 // This is really @aryan2010's game btw
 export default function loadAssets() {
-	loadSprite("bean", "sprites/bean.png");
+	loadSprite("bean", "sprites/princess.png");
 	loadSprite("googoly", "sprites/googoly.png");
   loadSprite("fliboi", "sprites/fliboi.png");
 	loadSprite("spike", "sprites/spike.png");
@@ -16,11 +16,12 @@ export default function loadAssets() {
 	loadSound("hit", "sounds/hit.mp3");
 	loadSound("portal", "sounds/portal.mp3");
   loadSprite("dangergrass", "sprites/ded-grass.png");
+  loadSprite("TroubleMan", "sprites/bossman.png");
 }
 //
 import kaboom from "kaboom";
 import patrol from "./patrol";
-import patr from "./patr";
+
 import big from "./big";
 
 
@@ -39,7 +40,8 @@ const MOVE_SPEED = 480;
 const FALL_DEATH = 2400;
 
 const LEVELS = [
-	[
+  
+[
 		"                           ",
 		"                           ",
 		"                           ",
@@ -66,9 +68,9 @@ const LEVELS = [
 	],
   [
 		"                 ^         ",
-		"                         ^ ",
+		"      ^                  ^ ",
 		"                      ^    ",
-		"       ^                   ",
+		"                           ",
 		"                ^          ",
 		"  ^      ^                 ",
 		"                           ",
@@ -89,7 +91,7 @@ const LEVELS = [
 		"=========================================",
     ],
    
-        [
+      [
 		"                                                                                ",
 		"                                                                                ",
 		"                                ^                                               ",
@@ -129,33 +131,62 @@ const LEVELS = [
 		"==&&&&&&&&&&&&&&&&&&&&&&&&=",
 	],
   [ 
-                "      @                     ",
-                "                            ",
+    "     @                      ",
+    "                            ",
 		"                            ",
 		"    ^>^                     ",
 		"    ^^^                     ",
-		"	                     ",
-		"      ^ >     >     >  ^    ",   
+		"	                           ",
+		"      ^ >     >  >   > ^    ",   
 		"      ^^^^^^^^^^^^^^^^^^    ",
 		"                            ",
 		"                            ",
 		"                            ",
-		"=           -            &>&",
-		"===&&=================&&&===",
+		"=                        &>&",
+		"===&&==================&&===",
 	],
 	[
   	"                           ",
 		"                           ",
 		"                           ",
 		"                           ",
-		"     =@       -         &  ",
+		"     =@       -        &   ",
 		"     ===================   ",
 		"                           ",
 		"                           ",
 		"                           ",
 		"&           -           &>&",
-		"===&====&&=====&&&=========",
+		"===&====&&======&&=========",
     ],	
+    
+    
+    [
+		"  &&&&                     ",
+		"  &                        ",
+		"  &                        ",
+		"  &                        ",
+		"  &@$+                &    ",
+		"  =====================    ",
+		"                           ",
+		"  %                        ",
+		"                           ",
+		"                        ^>^",
+		"===========================",
+	],
+  [
+"                                                                              ^  ",
+"                                                                              @ ",
+"                                                                    ",
+"                  ^      ^^^^^>^^^^^^>^^^^^^>^^^^^>^^^^>^^^^^^^^^               ",
+"                 ===     ========================================     =         ",
+"                                                                      &    ^>^  ",
+"                                                                       &    ^   ",
+"             =>>=     ^       ^         >>>>                       ^>^  &  ^@^  ",
+"======================&&&&=&&&&==============================&&&&===============",
+ ],
+	                                                                                                     
+
+  
 ];
 
 // define what each symbol means in the level graph
@@ -207,13 +238,22 @@ const levelConf = {
 		patrol(),
 		"enemy",
 	],
+  "+": () => [
+		sprite("TroubleMan"),
+		area(),
+		origin("bot"),
+   
+		body(),
+		patrol(),
+		"enemy",
+	],
   "-": () => [
 		sprite("fliboi"),
 		area(),
 		origin("bot"),
    
 		body(),
-		patr(),
+		patrol(),
 		"enemy1",
 	],
   "&": () => [
@@ -232,7 +272,7 @@ const levelConf = {
 	],
 };
 
-scene("game", ({ levelId, coins, levelnumb } = { levelId: 0, coins: 0, levelnumb: 1 }) => {
+scene("game", ({ levelId, coins, levelnumb, rank } = { levelId: 0, coins: 0, levelnumb: 1 ,rank:"Recruit"}) => {
   const bg = add([
 		sprite("bg"),
 		pos(-1900, -999),
@@ -269,25 +309,33 @@ scene("game", ({ levelId, coins, levelnumb } = { levelId: 0, coins: 0, levelnumb
 			go("game", {
 				levelId: levelId,
 				coins: 0,
+        rank: "Recruit",
 			});
 		}
 	});
-
+  const levelLabel = add([
+		text(rank),
+		pos(24, 7),
+		fixed(),
+	]);
 	// if player collides with any obj with "danger" tag, lose
 	player.collides("danger", () => {
 		go("game", {
 				levelId: levelId,
 				coins: 0,
+        rank: "Recruit",
 			});
 		play("hit");
 	});
 
 	player.collides("portal", () => {
 		play("portal");
-		if (levelId + -5 < LEVELS.length) {
+		if (levelId + -20 < LEVELS.length) {
 			go("game", {
 				levelId: levelId + 1,
 				coins: coins,
+        rank: rank,
+        
         
         
 			});
@@ -297,15 +345,46 @@ scene("game", ({ levelId, coins, levelnumb } = { levelId: 0, coins: 0, levelnumb
 		}
 	});
   player.collides("portal", (p) => {
-    levelnumb: levelnumb+1,
     
-		levelLabel.text = levelnumb;
-	});
-  const levelLabel = add([
-		text(" ", levelnumb),
-		pos(24, 7),
-		fixed(),
-	]);
+    
+		
+    if (levelId < 2) {
+		 rank="Recruit";
+     levelLabel.text = rank; 
+	  }
+    if (2 <levelId < 4) {
+			rank="Advanced";
+      levelLabel.text = rank;
+	  }
+    if (4 <levelId < 6) {
+			rank="Specialist";
+      levelLabel.text = rank;
+	  }
+    if (6 <levelId < 8) {
+			rank="Elite";
+      levelLabel.text = rank;
+	  }
+    if (8 <levelId < 10) {
+			rank="Super Elite";
+      levelLabel.text = rank;
+  	}
+    if (10 <levelId < 12) {
+			rank="Master";
+      levelLabel.text = rank;
+	  }
+    if (12 <levelId < 14) {
+			rank="Grand Master";
+      levelLabel.text = rank;
+	  }
+    
+     if (16 <levelId < 18) {
+			rank="Hacker";
+      levelLabel.text = rank;
+	  }
+    rank=rank;
+  });
+  
+
 	player.on("ground", (l) => {
 		if (l.is("enemy")) {
 			player.jump(JUMP_FORCE * 1.5);
@@ -320,15 +399,16 @@ scene("game", ({ levelId, coins, levelnumb } = { levelId: 0, coins: 0, levelnumb
 			go("game", {
 				levelId: levelId,
 				coins: 0,
+        rank: "Recruit",
 			});
 			play("hit");
 		}
 	});
 
-  	player.on("ground", (l) => {
+  player.on("ground", (l) => {
 		if (l.is("enemy1")) {
 			player.jump(JUMP_FORCE * 2);
-			destroy(5);
+			destroy(1);
 			addKaboom(player.pos);
 			play("powerup");
 		}
@@ -339,6 +419,7 @@ scene("game", ({ levelId, coins, levelnumb } = { levelId: 0, coins: 0, levelnumb
 			go("game", {
 				levelId: levelId,
 				coins: 0,
+        rank: "Recruit",
 			});
 			play("hit");
 		}
@@ -384,7 +465,7 @@ scene("game", ({ levelId, coins, levelnumb } = { levelId: 0, coins: 0, levelnumb
 	});
 
 	const coinsLabel = add([
-		text("  ", coins),
+		text("Coins", coins/5),
 		pos(24, 60),
 		fixed(),
 	]);
@@ -435,4 +516,5 @@ scene("win", () => {
 });
 
 go("game");
+
 
